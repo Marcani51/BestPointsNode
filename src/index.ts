@@ -1,27 +1,31 @@
+import ejsMate from "ejs-mate"
 import express from "express"
 import path from "path"
 import mongoose from "mongoose"
 import { Place } from "./models/place"
 import methodOverride from 'method-override'
+
 const app = express()
 
 // connect to mongoose mac
 
-// mongoose.connect("mongodb://127.0.0.1:27017/bestpoints")
-//     .then((result:any)=>{
-//         console.log("Succes connect to MongoDB")
-//     }).catch((err:any)=>{
-//         console.log(err)
-//     })
-
-// connect to mongoose windows
-mongoose.connect("mongodb://127.0.0.1/bestpoints")
+mongoose.connect("mongodb://127.0.0.1:27017/bestpoints")
     .then((result:any)=>{
         console.log("Succes connect to MongoDB")
     }).catch((err:any)=>{
         console.log(err)
     })
 
+// connect to mongoose windows
+// mongoose.connect("mongodb://127.0.0.1/bestpoints")
+//     .then((result:any)=>{
+//         console.log("Succes connect to MongoDB")
+//     }).catch((err:any)=>{
+//         console.log(err)
+//     })
+
+//@ts-ignore
+app.engine("ejs", ejsMate)
 app.set('view engine','ejs')
 app.set('views', path.join(__dirname, "views"))
 

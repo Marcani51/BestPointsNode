@@ -6,7 +6,8 @@ const placeSchema = new Schema({
     title:String,
     price:String,
     description:String,
-    location:String
+    location:String,
+    image:String
 })
 
 export const Place= mongoose.model("Place",placeSchema)
