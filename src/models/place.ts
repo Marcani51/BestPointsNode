@@ -7,7 +7,11 @@ const placeSchema = new Schema({
     price:String,
     description:String,
     location:String,
-    image:String
+    image:String,
+    reviews:[{
+        type:Schema.Types.ObjectId,
+        ref:'Review'
+    }]
 })
 
 export const Place= mongoose.model("Place",placeSchema)
