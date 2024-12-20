@@ -7,4 +7,4 @@ const reviewSchema = new Schema({
     body:String
 })
 
-export const Place= mongoose.model("Review",reviewSchema)
+export const Review= mongoose.model("Review",reviewSchema)
