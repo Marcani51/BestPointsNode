@@ -5,6 +5,7 @@ import { ExpressError } from "../utils/ExpressError";
 import {func as wrapAsync} from "../utils/wrapAsync"
 import express from "express";
 import { isValidObjectId } from "../middleware/isValidObjectId";
+import { isAuth } from "../middleware/isAuth";
 
 const router= express.Router()
 
@@ -26,11 +27,11 @@ router.get("/", wrapAsync(async (req:any, res:any) => {
     res.render("places/index", { places });
   }));
 
-router.get("/create",wrapAsync( async (req:any, res:any) => {
+router.get("/create", isAuth, wrapAsync( async (req:any, res:any) => {
     res.render("places/create");
   }));
 
-router.post("/",validatePlace, wrapAsync(async (req:any, res:any, next:any) => {
+router.post("/", isAuth, validatePlace, wrapAsync(async (req:any, res:any, next:any) => {
     try {
       const places = new Place(req.body.place);
       await places.save();
@@ -47,19 +48,19 @@ router.get("/:id",isValidObjectId('/places'), wrapAsync(async (req:any, res:any)
     res.render("places/show", { place });
   }));
 
-router.get("/:id/edit",isValidObjectId('/places'), wrapAsync( async (req:any, res:any) => {
+router.get("/:id/edit", isAuth, isValidObjectId('/places'), wrapAsync( async (req:any, res:any) => {
     const place = await Place.findById(req.params.id);
   
     res.render("places/edit", { place });
   }));
 
-router.put("/:id",isValidObjectId('/places'), validatePlace,wrapAsync(async (req:any, res:any) => {
+router.put("/:id", isAuth, isValidObjectId('/places'), validatePlace,wrapAsync(async (req:any, res:any) => {
     await Place.findByIdAndUpdate(req.params.id, { ...req.body.place });
     req.flash('succes_msg',"Place updated succesfully")
     res.redirect(`/places/${req.params.id}`);
   }));
 
-router.delete("/:id",isValidObjectId('/places'), wrapAsync(async (req:any, res:any) => {
+router.delete("/:id", isAuth, isValidObjectId('/places'), wrapAsync(async (req:any, res:any) => {
     console.log(req.params.id)
   await Place.findByIdAndDelete(req.params.id);
   req.flash('succes_msg',"Place deleted succesfully")

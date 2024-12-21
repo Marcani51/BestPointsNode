@@ -7,7 +7,9 @@ import session from "express-session"
 import flash from "connect-flash"
 import methodOverride from "method-override";
 import { ExpressError } from "./utils/ExpressError";
-
+import passport from "passport"
+import LocalStrategy from "passport-local"
+import { User } from "./models/user";
 
 const app = express();
 
@@ -51,7 +53,17 @@ app.use(session({
 }))
 app.use(flash())
 
+//#region setup auth
+app.use(passport.initialize())
+app.use(passport.session())
+//@ts-ignore
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
+//#endregion
+
 app.use((req: Request, res:Response, next:NextFunction)=>{
+  res.locals.currentUser=req.user
   res.locals.succes_msg=req.flash('succes_msg')
   res.locals.error_msg=req.flash('error_msg')
   
@@ -63,6 +75,7 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
+app.use('/',require('./routes/auth'))
 app.use('/places', require('./routes/place'))
 app.use('/places/:place_id/reviews',require('./routes/review'))
 
