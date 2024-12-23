@@ -12,9 +12,13 @@ router.post('/register',wrapAsync(async (req:Request,res:Response)=>{
     try {
         const {email, username, password}=req.body
         const user = new User({email, username})
-        await User.register(user, password)
-        req.flash('succes_msg',"You are registered and can log in")
-        res.redirect('/login')
+       const registUser= await User.register(user, password)
+       req.login(registUser,(err:any)=>{
+        //@ts-ignore
+        if(err) return next(err)
+        req.flash('succes_msg','You are registered and can login')
+        res.redirect('/places')
+       })
     } catch (error:any) {
         req.flash('error_msg',error.message)
         res.redirect("/register")
