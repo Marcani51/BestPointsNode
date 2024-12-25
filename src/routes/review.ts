@@ -7,6 +7,7 @@ import express from "express";
 import { Place } from "../models/place";
 import { isValidObjectId } from "../middleware/isValidObjectId";
 import { isAuth } from "../middleware/isAuth";
+import { isAuthorReview } from "../middleware/isAuthor";
 const router= express.Router({mergeParams:true})
 
 const validateReview=(req:Request, res:Response, next:NextFunction)=>{
@@ -23,19 +24,23 @@ const validateReview=(req:Request, res:Response, next:NextFunction)=>{
 
 router.post("/", isAuth, isValidObjectId('/places'),validateReview,wrapAsync(async(req:any, res:any)=>{
     const{place_id}= req.params
+
     const review= new Review(req.body.review)
+    review.author= req.user._id
+    await review.save()
     const place= await Place.findById(place_id)
+
     if(place!=undefined){
       //@ts-ignore
       place?.reviews.push(review)
-      await review.save()
+      
       await place.save()
       req.flash('succes_msg',"Review added succesfully")
       res.redirect(`/places/${place_id}`)
     }
   }))
   
-  router.delete('/:review_id', isAuth, isValidObjectId('/places'),wrapAsync(async(req:Request, res:Response)=>{
+  router.delete('/:review_id', isAuth, isAuthorReview, isValidObjectId('/places'),wrapAsync(async(req:Request, res:Response)=>{
     const {place_id, review_id}=req.params
     await Place.findByIdAndUpdate(place_id,{$pull:{reviews:review_id}})
     await Review.findByIdAndDelete(review_id)
