@@ -5,8 +5,7 @@ export const placeSchema= Joi.object({
         title:Joi.string().required(),
         description:Joi.string().required(),
         price:Joi.number().min(0).required(),
-        location:Joi.string().required(),
-        image:Joi.string().required()
+        location:Joi.string().required()
     }).required()
 })
 

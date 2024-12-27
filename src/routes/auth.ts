@@ -4,26 +4,11 @@ import { Response, Request, NextFunction } from "express";
 import { User } from "../models/user"
 import {func as wrapAsync} from "../utils/wrapAsync"
 import passport from "passport";
-router.get('/register',(req,res)=>{
-    res.render('auth/register')
-})
+import * as AuthController from "../controllers/auth"
 
-router.post('/register',wrapAsync(async (req:Request,res:Response)=>{
-    try {
-        const {email, username, password}=req.body
-        const user = new User({email, username})
-       const registUser= await User.register(user, password)
-       req.login(registUser,(err:any)=>{
-        //@ts-ignore
-        if(err) return next(err)
-        req.flash('succes_msg','You are registered and can login')
-        res.redirect('/places')
-       })
-    } catch (error:any) {
-        req.flash('error_msg',error.message)
-        res.redirect("/register")
-    }
-}) )
+router.route("/register")
+.get(AuthController.registerForm)
+.post(wrapAsync(AuthController.store))
 
 router.get('/login',(req:Request,res:Response)=>{
     res.render('auth/login')
@@ -36,16 +21,7 @@ router.post('/login',passport.authenticate('local',{
         type:'error_msg',
         msg:'Invalid username and password'
     }
-}),(req:Request, res:Response)=>{
-    req.flash("succes_msg","Your are log in")
-    res.redirect("/places")
-})
+}),AuthController.login)
 
-router.post('/logout',(req:Request, res:Response, next:NextFunction)=>{
-    req.logout(function (err:any){
-        if(err){return next(err)}
-        req.flash("succes_msg","You are log out")
-        res.redirect("/login")
-    })
-})
+router.post('/logout',AuthController.logout)
 module.exports=router
