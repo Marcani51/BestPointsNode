@@ -1,9 +1,9 @@
 import { ExpressError } from "./ExpressError";
 
 const baseUrl = 'https://geocode.search.hereapi.com/v1'
-const apiKey = 'cKKA1D0ftrVJs4QkN-6rCiVWIOiCgsvi3UEVAjhWqAs'
+const apiKey = 'C7RiO-EnbPFrRQZ5YG_vIpSlW8lqbj7dryetmZ1JmlI'
 
-const geocode=async(address:any)=>{
+export const geocode=async(address:any)=>{
     const url= `${baseUrl}/geocode?q=${address}&apiKey=${apiKey}`
     try{
         const response = await fetch(url);
@@ -21,7 +21,7 @@ export const geometry=async (address:any) => {
         const position = await geocode(address);
         return {
             type: 'Point',
-            coordinates: [position?.lat,position?.lng]
+            coordinates: [position?.lat, position?.lng]
         }
     } catch (err:any) {
         new ExpressError(err.message, 500)

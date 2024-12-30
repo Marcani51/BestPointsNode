@@ -2,10 +2,19 @@ import { Response, Request, NextFunction } from "express";
 import { Place } from "../models/place";
 import fs from 'fs'
 import { ExpressError } from "../utils/ExpressError";
+import * as hereMaps from "../utils/hereMaps"
 
 export async function index(req: Request, res: Response, next: NextFunction) {
   const places = await Place.find();
-  res.render("places/index", { places });
+
+  const clusteringPlace= places.map((place:any)=>{
+    return {
+      latitude:place.geometry.coordinates[0],
+      longitude: place.geometry.coordinates[1]
+    }
+  })
+  const clusteredPlace= JSON.stringify(clusteringPlace)
+  res.render("places/index", { places, clusteredPlace });
 }
 
 export async function store(req: Request, res: Response, next: NextFunction) {
@@ -15,11 +24,14 @@ export async function store(req: Request, res: Response, next: NextFunction) {
       url: file.path,
       filename:file.filename
     }))
-
+    const geodata = await hereMaps.geometry(req.body.place.location)
+    console.log(geodata)
+    
     const places = new Place(req.body.place)
     //@ts-ignore
     places.author=req.user._id
     places.images=images
+    places.geometry=geodata
     await places.save();
     req.flash("succes_msg", "Place added succesfully");
     res.redirect("/places");
@@ -47,7 +59,10 @@ export async function edit(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function update(req: Request, res: Response, next: NextFunction) {
-  const place=await Place.findByIdAndUpdate(req.params.id, { ...req.body.place });
+  const {place}=req.body
+  const geodata = await hereMaps.geometry(place.location)
+
+  const newPlace=await Place.findByIdAndUpdate(req.params.id, { ...place, geometry:geodata }, {runValidators:true, new:true});
   //@ts-ignore
   if(req.files && req.files.length > 0){
     place.images.forEach((image:any) => {
@@ -58,8 +73,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
       url: file.path,
       filename:file.filename
     }))
-    place.images=images
-    await place.save()
+    newPlace.images=images
+    await newPlace.save()
   } 
   req.flash("succes_msg", "Place updated succesfully");
   res.redirect(`/places/${req.params.id}`);

@@ -10,7 +10,6 @@ import { ExpressError } from "./utils/ExpressError";
 import passport from "passport"
 import LocalStrategy from "passport-local"
 import { User } from "./models/user";
-
 const app = express();
 
 // connect to mongoose mac
@@ -71,7 +70,8 @@ app.use((req: Request, res:Response, next:NextFunction)=>{
 })
 ///// routing
 
-app.get("/", (req, res) => {
+app.get("/", async (req:Request, res:Response) => {
+ 
   res.render("home");
 });
 
