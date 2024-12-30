@@ -15,7 +15,7 @@ const app = express();
 // connect to mongoose mac
 
 mongoose
-  .connect("mongodb+srv://Marcani51:marcellus.denta96@cluster0.umbob.mongodb.net/BestPoints?retryWrites=true&w=majority")
+  .connect("mongodb://127.0.0.1:27017/bestpoints")
   .then((result: any) => {
     console.log("Succes connect to MongoDB");
   })
